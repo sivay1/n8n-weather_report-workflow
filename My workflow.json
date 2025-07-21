@@ -1,0 +1,145 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -540,
+        -120
+      ],
+      "id": "20cbd7fa-0950-44c4-a0a6-6d1d15527ed2",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const quote = $input.all().map((item) => item.json)[0];\nconst weather = $(\"weather\").all().map((item) => item.json)[0];\n\nconst city = weather.name;\nconst temp = weather.main.temp;\nconst condition = weather.weather[0].main;\n\nconst emojis = {\n  Clear: \"☀️\",\n  Rain: \"🌧️\",\n  Clouds: \"☁️\",\n  Snow: \"❄️\",\n  Thunderstorm: \"⚡\",\n  Mist: \"🌫️\"\n};\n\nconst emoji = emojis[condition] || \"\";\n\nconst message = `🌤️ *Good Morning!*\\n\\n📍 *Weather in ${city}*: ${temp}°C ${emoji} (${condition})\\n\\n💬 *Quote of the Day:*\\n_\"${quote.q}\"_\\n– ${quote.a}`;\n\nreturn [{ json: { message } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        -100
+      ],
+      "id": "46c99245-05ee-4485-b12a-5f6e5f474e5c",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "chatId": "1080334637",
+        "text": "={{ $json.message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        520,
+        -100
+      ],
+      "id": "b6cc86b2-2133-41f0-8631-7692a7a87107",
+      "name": "Send a text message",
+      "webhookId": "573b1390-f509-475b-8a70-d0914526d97d",
+      "credentials": {
+        "telegramApi": {
+          "id": "3yPwbBXk5bGt51uI",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.openweathermap.org/data/2.5/weather?q=Kovilpatti&units=metric&appid=d08737dfe6c96b787c6e2a007e2b3b03",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -300,
+        -140
+      ],
+      "id": "91e84893-bcc9-4d36-8c4b-583228b65f54",
+      "name": "weather"
+    },
+    {
+      "parameters": {
+        "url": "https://zenquotes.io/api/random",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -60,
+        -140
+      ],
+      "id": "6812f645-46c3-4762-9fc5-e491d3c780b0",
+      "name": "quote"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "weather": {
+      "main": [
+        [
+          {
+            "node": "quote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "quote": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a4872334-dbba-496f-a60f-868febb54403",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e076cbf3ef3fd3d014f85a574cd071230b94f4d28094160e1ad0c186c2dac9f9"
+  },
+  "id": "gH3LQkLwb3mrMAAP",
+  "tags": []
+}
